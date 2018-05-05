@@ -42,4 +42,4 @@ upload: $(TARGET).hex
 	ldpic32 -w $(TARGET).hex
 
 clean:
-	@- rm *.o *.hex *.elf *.map
+	@- $(RM) $(BINDIR) -R
