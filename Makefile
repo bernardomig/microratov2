@@ -21,7 +21,7 @@ OBJECTS=$(patsubst $(SRCDIR)/%, $(BINDIR)/%, $(SOURCES:.c=.o))
 
 TARGET:=$(BINDIR)/$(TARGET)
 
-.PHONY: all upload clean
+.PHONY: all upload clean format
 
 all: $(TARGET).hex
 
@@ -43,3 +43,7 @@ upload: $(TARGET).hex
 
 clean:
 	@- $(RM) $(BINDIR) -R
+
+format:
+	clang-format -style=file -i $(SRCDIR)/*.c
+	clang-format -style=file -i $(INCLUDEDIR)/*.h

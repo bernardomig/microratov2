@@ -9,26 +9,28 @@ obstacle_sensors_t obstacle_sensors;
 const float a = 8688.4;
 const float b = 0.42;
 
-inline int convert_to_mm(int reading) {
-    return (int)(a / reading - b);
+inline int
+convert_to_mm(int reading)
+{
+  return (int)(a / reading - b);
 }
 
-void init_obstacle_sensors() {
-    enableObstSens();
-    obstacle_sensors.left = 0;
-    obstacle_sensors.front = 0;
-    obstacle_sensors.right = 0;
+void
+obstacle_init()
+{
+  enableObstSens();
+  obstacle_sensors.left = 0;
+  obstacle_sensors.front = 0;
+  obstacle_sensors.right = 0;
 }
 
-void update_obstacle_sensors() {
+void
+obstacle_update()
+{
 
-    readAnalogSensors();
+  readAnalogSensors();
 
-    obstacle_sensors.left
-        = convert_to_mm(analogSensors.obstSensLeft);
-    obstacle_sensors.right
-        = convert_to_mm(analogSensors.obstSensRight);
-    obstacle_sensors.front
-        = convert_to_mm(analogSensors.obstSensFront);
-
+  obstacle_sensors.left = convert_to_mm(analogSensors.obstSensLeft);
+  obstacle_sensors.right = convert_to_mm(analogSensors.obstSensRight);
+  obstacle_sensors.front = convert_to_mm(analogSensors.obstSensFront);
 }

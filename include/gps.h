@@ -3,15 +3,17 @@
 
 typedef struct
 {
-    double x;
-    double y;
-    double t;
+  double x;
+  double y;
+  double t;
 } pose_t;
 
 extern pose_t robot_pose;
 
-void gps_init();
+void
+gps_init();
 
-void gps_update();
+void
+gps_update();
 
 #endif
