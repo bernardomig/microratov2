@@ -3,9 +3,9 @@
 
 typedef struct
 {
-  int left;
-  int front;
-  int right;
+  double left;
+  double front;
+  double right;
 } obstacle_sensors_t;
 
 extern obstacle_sensors_t obstacle_sensors;

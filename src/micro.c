@@ -3,6 +3,7 @@
 #include "eye.h"
 #include "gps.h"
 #include "obstacle.h"
+#include "transportation.h"
 #include "wheels.h"
 
 int
@@ -12,18 +13,21 @@ main()
 
   wheels_init();
   gps_init();
+  move_init();
 
-  int speed = 100;
-  wheel_speed.left = speed;
-  wheel_speed.right = speed;
-  wheels_update();
+  goal.x = 100;
+  goal.y = 0;
 
   while (1) {
-    printf(
-      "{ x=%f,\ty=%f,\tz=%f\t}\n", robot_pose.x, robot_pose.y, robot_pose.t);
 
-    gps_update();
+    printf("robot_position = {%f,\t%f\t,%f\t}\n",
+           robot_pose.x,
+           robot_pose.y,
+           robot_pose.t);
+    move_debug();
 
-    delay(2000);
+    int i;
+    for (i = 0; i < 100; ++i)
+      move_update();
   }
 }

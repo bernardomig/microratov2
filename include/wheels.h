@@ -3,8 +3,8 @@
 
 typedef struct
 {
-  int left;
-  int right;
+  double left;
+  double right;
 } speed_t;
 
 extern speed_t wheel_speed;
