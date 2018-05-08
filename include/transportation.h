@@ -1,20 +1,24 @@
 #ifndef __TRANSPORTATION_H__
 #define __TRANSPORTATION_H__
 
-const double maximum_delta;
+#include "gps.h"
 
-typedef struct {
-    double x;
-    double y;
-} point_t;
+extern pose_t goal;
 
-extern point_t goal;
+void
+move_init();
 
-void move_init();
+void
+move_update();
 
-void move_update();
+inline int
+move_check();
 
-inline int move_check();
+inline void move_goto(pose_t);
+
+inline void move_goto_to_point();
+
+void move_rotate_to();
 
 void move_debug();
 

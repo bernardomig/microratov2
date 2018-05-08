@@ -15,19 +15,33 @@ main()
   gps_init();
   move_init();
 
-  goal.x = 100;
-  goal.y = 0;
+  pose_t to_go[4];
+  to_go[0].x = 0;
+  to_go[0].y = 0;
+  to_go[0].t = 0;
+
+  to_go[1].x = 500;
+  to_go[1].y = 0;
+  to_go[1].t = PI / 2;
+
+  to_go[2].x = 500;
+  to_go[2].y = 500;
+  to_go[2].t = PI;
+
+  to_go[3].x = 0;
+  to_go[3].y = 500;
+  to_go[3].t = 3 * PI / 2;
+
 
   while (1) {
-
-    printf("robot_position = {%f,\t%f\t,%f\t}\n",
-           robot_pose.x,
-           robot_pose.y,
-           robot_pose.t);
-    move_debug();
-
     int i;
-    for (i = 0; i < 100; ++i)
-      move_update();
+    for (i = 0; i < 4; ++i) {
+      goal = to_go[i];
+      move_goto_to_point();
+    }
   }
+
+  while (1)
+    ;
+  ;
 }
