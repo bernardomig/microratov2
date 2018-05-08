@@ -14,11 +14,12 @@ move_update();
 inline int
 move_check();
 
-inline void move_goto(pose_t);
+void
+move_rotate_to();
 
-inline void move_goto_to_point();
+inline int move_goto_to_point();
 
-void move_rotate_to();
+inline void move_stop();
 
 void move_debug();
 

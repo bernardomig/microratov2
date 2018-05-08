@@ -14,34 +14,50 @@ main()
   wheels_init();
   gps_init();
   move_init();
+  obstacle_init();
 
-  pose_t to_go[4];
-  to_go[0].x = 0;
-  to_go[0].y = 0;
-  to_go[0].t = 0;
+  wheel_speed.left = 50;
+  wheel_speed.right = 50;
+  wheels_update();
+  int count = 0;
+  int ticks = 0;
 
-  to_go[1].x = 500;
-  to_go[1].y = 0;
-  to_go[1].t = PI / 2;
-
-  to_go[2].x = 500;
-  to_go[2].y = 500;
-  to_go[2].t = PI;
-
-  to_go[3].x = 0;
-  to_go[3].y = 500;
-  to_go[3].t = 3 * PI / 2;
-
+  int eye_state = 0;
 
   while (1) {
-    int i;
-    for (i = 0; i < 4; ++i) {
-      goal = to_go[i];
-      move_goto_to_point();
+    if (ticks++ % 100000 == 0)
+      count++;
+
+    if (ticks % 10000)
+      eye_rotate(eye_state++ % 2 == 0 ? -10 : 10);
+
+    obstacle_update();
+    if (obstacle_sensors.front < 200 || obstacle_sensors.left < 200 ||
+        obstacle_sensors.right < 200) {
+
+      move_stop();
+
+      if (count % 2 == 0) {
+        wheel_speed.left = +50;
+        wheel_speed.right = -50;
+      } else {
+        wheel_speed.left = -50;
+        wheel_speed.right = +50;
+      }
+
+      wheels_update();
+
+      while (obstacle_sensors.right < 800 && obstacle_sensors.front < 400 &&
+             obstacle_sensors.left < 800)
+        obstacle_update();
+
+      printf("obstacle cleared!\n");
+
+      move_stop();
+
+      wheel_speed.left = 50;
+      wheel_speed.right = 50;
+      wheels_update();
     }
   }
-
-  while (1)
-    ;
-  ;
 }

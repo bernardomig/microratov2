@@ -6,7 +6,17 @@
 #include "robot.h"
 #include "wheels.h"
 
+typedef enum
+{
+  STOPPED,
+  ROTATING_TO_GOAL,
+  ROTATING_TO_POSE,
+  MOVING
+} state_t;
+
 pose_t goal;
+
+state_t current_state;
 
 const double K = 0.2;
 
@@ -82,7 +92,7 @@ calculate_distance()
 inline pose_t
 calculate_wheel_vel_rotation_to_goal()
 {
-  double t2 = 50 * calculate_omega();
+  double t2 = 40 * calculate_omega();
   if (fabs(t2) > max_velocity)
     t2 = t2 / t2 * max_velocity;
 
@@ -96,7 +106,7 @@ calculate_wheel_vel_rotation_to_goal()
 inline pose_t
 calculate_wheel_vel_rotation_to_pose()
 {
-  double t2 = 50 * calculate_delta_theta();
+  double t2 = 40 * calculate_delta_theta();
   if (fabs(t2) > max_velocity)
     t2 = t2 / t2 * max_velocity;
 
@@ -111,10 +121,10 @@ inline pose_t
 calculate_wheel_vel_translation()
 {
   pose_t wheel_vel;
-  double t1 = 0.4 * calculate_delta();
+  double t1 = 0.3 * calculate_delta();
   if (fabs(t1) > max_velocity)
     t1 = t1 / t1 * max_velocity;
-  double t2 = 10 * calculate_omega();
+  double t2 = 40 * calculate_omega();
   if (fabs(t2) > max_velocity)
     t2 = t2 / t2 * max_velocity;
 
@@ -129,6 +139,7 @@ move_init()
 {
   goal.x = 0;
   goal.y = 0;
+  current_state = STOPPED;
 }
 
 void
@@ -198,13 +209,8 @@ void
 move_rotate_to()
 {
 
-  while (calculate_delta_theta2() > 0.002) {
-
-    int i;
-    for (i = 0; i < 1000; i++)
-      move_update_rotation_to_pose();
-
-    printf("%f\n", calculate_delta_theta2());
+  while (calculate_delta_theta2() > 0.01) {
+    move_update_rotation_to_pose();
   }
 
   wheel_speed.left = 0;
@@ -212,34 +218,53 @@ move_rotate_to()
   wheels_update();
 }
 
-inline void
-move_goto_to_point()
+void
+move_stop()
 {
-  printf("rotate to goal\n");
-
-  if (calculate_distance() > 1000)
-    while (calculate_delta_omega2() > 0.01) {
-
-      int i;
-      for (i = 0; i < 1000; i++)
-        move_update_rotation_to_goal();
-
-      printf("%f\n", calculate_delta_theta2());
-    }
-
-  while (calculate_distance() > 4000) {
-    move_update_translation();
-  }
-
-  printf("translate\n");
-
-  while (calculate_delta_theta2() > 0.01) {
-    move_update_rotation_to_pose();
-  }
-
-  printf("rotate to pose\n");
+  current_state = STOPPED;
 
   wheel_speed.left = 0;
   wheel_speed.right = 0;
   wheels_update();
+}
+
+inline int
+move_goto_to_point()
+{
+
+  if (current_state == STOPPED) {
+    current_state = ROTATING_TO_GOAL;
+  }
+
+  if (current_state == ROTATING_TO_GOAL) {
+    if (calculate_delta_omega2() > 0.01) {
+      move_update_rotation_to_goal();
+    } else {
+      current_state = MOVING;
+    }
+  }
+
+  if (current_state == MOVING) {
+    if (calculate_distance() > 400) {
+      move_update_translation();
+    } else {
+      current_state = ROTATING_TO_POSE;
+    }
+  }
+
+  if (current_state == ROTATING_TO_POSE) {
+    if (calculate_delta_theta2() > 0.01) {
+      move_update_rotation_to_pose();
+    } else {
+      current_state = STOPPED;
+    }
+  }
+
+  if (current_state == STOPPED) {
+    wheel_speed.left = 0;
+    wheel_speed.right = 0;
+    wheels_update();
+  }
+
+  return current_state == STOPPED;
 }
