@@ -20,6 +20,7 @@ main()
   gps_init();
   move_init();
   obstacle_init();
+  enableGroundSens();
 
   while (!startButton())
     ;
@@ -33,11 +34,25 @@ main()
   int eye_state = 0;
 
   while (1) {
-    if (ticks++ % 100000 == 0)
+    if (ticks++ % 10000 == 0)
       count++;
 
     if (ticks % 10000)
       eye_rotate(eye_state++ % 2 == 0 ? -10 : 10);
+
+    // if (readLineSensors(0)) {
+
+    //   wheel_speed.left = +50;
+    //   wheel_speed.right = -50;
+    //   wheels_update();
+
+    //   while (readLineSensors(0))
+    //     ;
+
+    //   wheel_speed.left = 50;
+    //   wheel_speed.right = 50;
+    //   wheels_update();
+    // }
 
     obstacle_update();
     if (obstacle_sensors.front < 200 || obstacle_sensors.left < 200 ||
@@ -45,22 +60,24 @@ main()
 
       move_stop();
 
-      if ((obstacle_sensors.left < 200 || obstacle_sensors.right < 200) &&
-          obstacle_sensors.front < 200) {
+      if (abs(obstacle_sensors.left - obstacle_sensors.right) < 150) {
 
-        gps_update();
+        if (obstacle_sensors.left < obstacle_sensors.right) {
+          wheel_speed.left = +50;
+          wheel_speed.right = -50;
+        } else {
+          wheel_speed.left = -50;
+          wheel_speed.right = +50;
+        }
 
-        poses[pose_c++] = robot_pose;
-
-        printf("poses: %d\n", pose_c);
-      }
-
-      if (obstacle_sensors.left < obstacle_sensors.right) {
-        wheel_speed.left = +50;
-        wheel_speed.right = -50;
       } else {
-        wheel_speed.left = -50;
-        wheel_speed.right = +50;
+        if (count % 2) {
+          wheel_speed.left = +50;
+          wheel_speed.right = -50;
+        } else {
+          wheel_speed.left = -50;
+          wheel_speed.right = +50;
+        }
       }
 
       wheels_update();
