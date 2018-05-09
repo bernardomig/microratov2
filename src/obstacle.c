@@ -12,7 +12,7 @@ const double b = 4.2;
 inline double
 convert_to_mm(int reading)
 {
-  return (a / reading - b);
+  return (a / (reading)-b);
 }
 
 void

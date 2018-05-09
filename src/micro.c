@@ -6,21 +6,15 @@
 #include "transportation.h"
 #include "wheels.h"
 
-pose_t poses[50];
-int pose_c;
-
 int
 main()
 {
   initPIC32();
 
-  pose_c = 0;
-
   wheels_init();
   gps_init();
   move_init();
   obstacle_init();
-  enableGroundSens();
 
   while (!startButton())
     ;
@@ -33,26 +27,41 @@ main()
 
   int eye_state = 0;
 
+  int reached = 0;
+
   while (1) {
-    if (ticks++ % 10000 == 0)
+
+    leds(0);
+
+    if (ticks++ % 100000 == 0)
       count++;
 
     if (ticks % 10000)
       eye_rotate(eye_state++ % 2 == 0 ? -10 : 10);
 
-    // if (readLineSensors(0)) {
+    if (readLineSensors(0) && reached == 0) {
 
-    //   wheel_speed.left = +50;
-    //   wheel_speed.right = -50;
-    //   wheels_update();
+      wheel_speed.left = 0;
+      wheel_speed.right = 0;
+      wheels_update();
 
-    //   while (readLineSensors(0))
-    //     ;
+      leds(0b1111);
 
-    //   wheel_speed.left = 50;
-    //   wheel_speed.right = 50;
-    //   wheels_update();
-    // }
+      wait(3);
+
+      wheel_speed.left = 50;
+      wheel_speed.right = -50;
+      wheels_update();
+
+      while (readLineSensors(0))
+        ;
+
+      wheel_speed.left = 50;
+      wheel_speed.right = 50;
+      wheels_update();
+
+      reached = 1;
+    }
 
     obstacle_update();
     if (obstacle_sensors.front < 200 || obstacle_sensors.left < 200 ||
@@ -60,24 +69,12 @@ main()
 
       move_stop();
 
-      if (abs(obstacle_sensors.left - obstacle_sensors.right) < 150) {
-
-        if (obstacle_sensors.left < obstacle_sensors.right) {
-          wheel_speed.left = +50;
-          wheel_speed.right = -50;
-        } else {
-          wheel_speed.left = -50;
-          wheel_speed.right = +50;
-        }
-
+      if (count % 2 == 0) {
+        wheel_speed.left = +50;
+        wheel_speed.right = -50;
       } else {
-        if (count % 2) {
-          wheel_speed.left = +50;
-          wheel_speed.right = -50;
-        } else {
-          wheel_speed.left = -50;
-          wheel_speed.right = +50;
-        }
+        wheel_speed.left = -50;
+        wheel_speed.right = +50;
       }
 
       wheels_update();
