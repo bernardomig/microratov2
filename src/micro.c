@@ -63,6 +63,7 @@ main()
       reached = 1;
     }
 
+
     obstacle_update();
     if (obstacle_sensors.front < 200 || obstacle_sensors.left < 200 ||
         obstacle_sensors.right < 200) {
