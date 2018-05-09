@@ -1,3 +1,4 @@
+
 #include "mr32.h"
 
 #include "eye.h"
@@ -16,8 +17,7 @@ main()
   move_init();
   obstacle_init();
 
-  while (!startButton())
-    ;
+  enableGroundSens();
 
   wheel_speed.left = 50;
   wheel_speed.right = 50;
@@ -27,42 +27,20 @@ main()
 
   int eye_state = 0;
 
-  int reached = 0;
+  int found_beacon = 0;
 
   while (1) {
-
-    leds(0);
-
     if (ticks++ % 100000 == 0)
       count++;
 
     if (ticks % 10000)
       eye_rotate(eye_state++ % 2 == 0 ? -10 : 10);
 
-    if (readLineSensors(0) && reached == 0) {
-
-      wheel_speed.left = 0;
-      wheel_speed.right = 0;
-      wheels_update();
-
+    if (readLineSensors(0) && found_beacon == 0) {
       leds(0b1111);
-
       wait(3);
-
-      wheel_speed.left = 50;
-      wheel_speed.right = -50;
-      wheels_update();
-
-      while (readLineSensors(0))
-        ;
-
-      wheel_speed.left = 50;
-      wheel_speed.right = 50;
-      wheels_update();
-
-      reached = 1;
+      found_beacon = 1;
     }
-
 
     obstacle_update();
     if (obstacle_sensors.front < 200 || obstacle_sensors.left < 200 ||
@@ -83,6 +61,8 @@ main()
       while (obstacle_sensors.right < 800 && obstacle_sensors.front < 400 &&
              obstacle_sensors.left < 800)
         obstacle_update();
+
+      printf("obstacle cleared!\n");
 
       move_stop();
 
