@@ -6,15 +6,23 @@
 #include "transportation.h"
 #include "wheels.h"
 
+pose_t poses[50];
+int pose_c;
+
 int
 main()
 {
   initPIC32();
 
+  pose_c = 0;
+
   wheels_init();
   gps_init();
   move_init();
   obstacle_init();
+
+  while (!startButton())
+    ;
 
   wheel_speed.left = 50;
   wheel_speed.right = 50;
@@ -37,7 +45,17 @@ main()
 
       move_stop();
 
-      if (count % 2 == 0) {
+      if ((obstacle_sensors.left < 200 || obstacle_sensors.right < 200) &&
+          obstacle_sensors.front < 200) {
+
+        gps_update();
+
+        poses[pose_c++] = robot_pose;
+
+        printf("poses: %d\n", pose_c);
+      }
+
+      if (obstacle_sensors.left < obstacle_sensors.right) {
         wheel_speed.left = +50;
         wheel_speed.right = -50;
       } else {
@@ -50,8 +68,6 @@ main()
       while (obstacle_sensors.right < 800 && obstacle_sensors.front < 400 &&
              obstacle_sensors.left < 800)
         obstacle_update();
-
-      printf("obstacle cleared!\n");
 
       move_stop();
 
